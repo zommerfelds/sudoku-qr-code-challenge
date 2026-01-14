@@ -15,3 +15,16 @@ node generate-sheet.js https://zommerfelds.github.io/sudoku-qr-code-challenge
 ```
 
 Host everything on Github pages
+
+Sudoku
+
+```
+58. 1.. ..7
+... 5.. .26
+... ..1 ..4
+1.. ... ...
+..4 2.. ...
+... ... 6.8
+7.1 ..3 ...
+..5 4.. 9..
+```
