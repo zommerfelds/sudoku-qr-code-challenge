@@ -51,9 +51,21 @@
         <!-- Canvas for frame analysis AND visualization overlay -->
         <canvas id="canvas" class="absolute inset-0 w-full h-full object-cover hidden z-20"></canvas>
         
+        <!-- Visual Overlay Guide -->
+        <div id="scan-overlay" class="absolute inset-0 z-20 pointer-events-none flex items-center justify-center hidden">
+            <!-- The hole in the middle with borders -->
+            <div class="w-64 h-64 border-2 border-green-500/50 rounded-lg relative shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]">
+                <!-- Corner markers for style -->
+                <div class="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-green-500 -mt-1 -ml-1"></div>
+                <div class="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4 border-green-500 -mt-1 -mr-1"></div>
+                <div class="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4 border-green-500 -mb-1 -ml-1"></div>
+                <div class="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4 border-green-500 -mb-1 -mr-1"></div>
+            </div>
+        </div>
+
         <!-- Debug / Feedback Overlay -->
         <div id="scan-feedback" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-md text-xs font-mono hidden z-40 text-center max-w-[90%] break-words">
-            Waiting for camera...
+            Warten auf Kamera...
         </div>
     </div>
 
@@ -78,6 +90,7 @@
         const startBtn = document.getElementById("start-btn");
         const gridContainer = document.getElementById("grid-container");
         const scanFeedback = document.getElementById("scan-feedback");
+        const scanOverlay = document.getElementById("scan-overlay");
 
         // --- Grid Logic ---
 
@@ -116,11 +129,11 @@
                 renderGrid();
                 
                 // Visual feedback that a scan happened
-                pulseFeedback("Confirmed: " + digit);
+                pulseFeedback("Bestätigt: " + digit);
             } else {
                  // Even if already processed, show feedback so user knows it was seen
                  if (!scanFeedback.classList.contains("bg-green-600")) {
-                     scanFeedback.textContent = "Already scanned: " + digit;
+                     scanFeedback.textContent = "Bereits gescannt: " + digit;
                  }
             }
         }
@@ -131,7 +144,7 @@
             pendingDigitStartTime = 0;
             renderGrid();
             
-            scanFeedback.textContent = "Scanning...";
+            scanFeedback.textContent = "Scanne...";
             scanFeedback.classList.remove("bg-green-600");
             scanFeedback.classList.add("bg-black/60");
         }
@@ -141,7 +154,7 @@
             scanFeedback.classList.remove("bg-black/60");
             scanFeedback.classList.add("bg-green-600");
             setTimeout(() => {
-                scanFeedback.textContent = "Scanning...";
+                scanFeedback.textContent = "Scanne...";
                 scanFeedback.classList.remove("bg-green-600");
                 scanFeedback.classList.add("bg-black/60");
             }, 1000);
@@ -150,7 +163,7 @@
         // --- Camera & Scanning Logic ---
 
         async function startCamera() {
-            startBtn.textContent = "Loading...";
+            startBtn.textContent = "Laden...";
             startBtn.disabled = true;
 
             try {
@@ -173,15 +186,16 @@
                 startBtn.classList.add("hidden");
                 canvas.classList.remove("hidden");
                 scanFeedback.classList.remove("hidden");
-                scanFeedback.textContent = "Camera started. Scanning...";
+                scanOverlay.classList.remove("hidden");
+                scanFeedback.textContent = "Kamera gestartet. Scanne...";
                 
                 requestAnimationFrame(tick);
 
             } catch (err) {
                 console.error("Error accessing camera", err);
-                alert("Could not access camera. Ensure permissions are granted and you are using HTTPS.");
+                alert("Zugriff auf Kamera nicht möglich. Bitte Berechtigungen prüfen und HTTPS verwenden.");
                 startBtn.disabled = false;
-                startBtn.textContent = "Retry Camera";
+                startBtn.textContent = "Kamera erneut versuchen";
             }
         }
 
@@ -202,11 +216,19 @@
                     canvas.height = video.videoHeight;
                 }
                 
-                // 1. Draw video
+                // 1. Draw full video to canvas
                 canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
-                // 2. Scan
-                const imageData = canvasCtx.getImageData(0, 0, canvas.width, canvas.height);
+                // 2. Define Scan Region (Center ~60%)
+                const minDim = Math.min(canvas.width, canvas.height);
+                const scanSize = Math.floor(minDim * 0.6); 
+                const scanX = Math.floor((canvas.width - scanSize) / 2);
+                const scanY = Math.floor((canvas.height - scanSize) / 2);
+
+                // 3. Extract only the center image data for scanning
+                const imageData = canvasCtx.getImageData(scanX, scanY, scanSize, scanSize);
+                
+                // 4. Scan the cropped data
                 const code = jsQR(imageData.data, imageData.width, imageData.height, {
                     inversionAttempts: "attemptBoth",
                 });
@@ -215,12 +237,15 @@
                 let foundValidDigit = false;
 
                 if (code) {
+                    // Helper to adjust cropped coordinates back to full canvas coordinates for drawing
+                    const adjust = (pt) => ({ x: pt.x + scanX, y: pt.y + scanY });
+
                     // Draw Box
                     const color = "#FF3B58";
-                    drawLine(code.location.topLeftCorner, code.location.topRightCorner, color);
-                    drawLine(code.location.topRightCorner, code.location.bottomRightCorner, color);
-                    drawLine(code.location.bottomRightCorner, code.location.bottomLeftCorner, color);
-                    drawLine(code.location.bottomLeftCorner, code.location.topLeftCorner, color);
+                    drawLine(adjust(code.location.topLeftCorner), adjust(code.location.topRightCorner), color);
+                    drawLine(adjust(code.location.topRightCorner), adjust(code.location.bottomRightCorner), color);
+                    drawLine(adjust(code.location.bottomRightCorner), adjust(code.location.bottomLeftCorner), color);
+                    drawLine(adjust(code.location.bottomLeftCorner), adjust(code.location.topLeftCorner), color);
 
                     // Parse Text
                     const match = code.data.match(/n=(\d)/);
@@ -236,7 +261,7 @@
                             pendingDigit = detectedDigit;
                             pendingDigitStartTime = now;
                             if (!scanFeedback.classList.contains("bg-green-600")) {
-                                scanFeedback.textContent = `Found: ${detectedDigit} (Verifying...)`;
+                                scanFeedback.textContent = `Gefunden: ${detectedDigit} (Verifizieren...)`;
                             }
                         } else {
                             // Same digit as pending
@@ -245,7 +270,7 @@
                             // Visual feedback
                             if (elapsed < CONFIRMATION_TIME_MS) {
                                 if (!scanFeedback.classList.contains("bg-green-600")) {
-                                    scanFeedback.textContent = `Found: ${detectedDigit} (${(elapsed/1000).toFixed(1)}s)`;
+                                    scanFeedback.textContent = `Gefunden: ${detectedDigit} (${(elapsed/1000).toFixed(1)}s)`;
                                 }
                             } else {
                                 // Time met!
@@ -255,7 +280,7 @@
                     } else {
                          // Found a QR, but not the right pattern
                          if (!scanFeedback.classList.contains("bg-green-600")) {
-                             scanFeedback.textContent = "QR found (no digit)";
+                             scanFeedback.textContent = "QR gefunden (keine Ziffer)";
                          }
                     }
                 }
@@ -266,7 +291,7 @@
                         pendingDigit = null;
                         pendingDigitStartTime = 0;
                         if (!scanFeedback.classList.contains("bg-green-600")) {
-                            scanFeedback.textContent = "Scanning...";
+                            scanFeedback.textContent = "Scanne...";
                         }
                     }
                 }
