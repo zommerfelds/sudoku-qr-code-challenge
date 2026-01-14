@@ -25,15 +25,15 @@ const createHtml = (qrCodes) => {
   const qrCodeImages = qrCodes.map(qr => `<img src="${qr}" alt="QR Code">`).join('');
 
   const sudokuPuzzle = [
-    "58.1....7",
-    "...5....26",
-    "....1...4",
-    "1........",
-    "..42.....",
-    "......6.8",
-    "7.1..3...",
-    "..54..9..",
-    "........."
+    ".8.....9.",
+    ".7..6.21.",
+    "..6.487..",
+    "8.....53.",
+    ".2.......",
+    "163......",
+    "...4.19..",
+    ".......7.",
+    "2.97....5"
   ].map(row => row.replace(/ /g, ''));
 
   let sudokuTable = '<table class="sudoku-grid">';
