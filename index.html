@@ -87,7 +87,9 @@
         let audioCtx = null;
         
         // Target Sequence
-        const TARGET_SEQUENCE = [6,2,7,8,1,3,5,9,4];
+        // This is the order of the digits on the sudoku solution: [6,2,7,8,1,3,5,9,4]
+        // Now listed in order of position numbers
+        const TARGET_SEQUENCE = [5,2,6,9,7,1,3,4,8];
         
         // New Stability Logic State
         let pendingDigit = null;        // The digit currently being tracked
@@ -206,7 +208,7 @@
             } else {
                  // Even if already processed, show feedback so user knows it was seen
                  if (!scanFeedback.classList.contains("bg-green-600")) {
-                     scanFeedback.textContent = "Bereits gescannt: " + digit;
+                     scanFeedback.textContent = "Bereits gescannt";
                  }
             }
         }
@@ -220,7 +222,7 @@
             // Hide error message
             errorMessage.classList.add("hidden");
 
-            scanFeedback.textContent = "Scanne...";
+            scanFeedback.textContent = "Scannen...";
             scanFeedback.classList.remove("bg-green-600");
             scanFeedback.classList.add("bg-black/60");
         }
@@ -230,7 +232,7 @@
             scanFeedback.classList.remove("bg-black/60");
             scanFeedback.classList.add("bg-green-600");
             setTimeout(() => {
-                scanFeedback.textContent = "Scanne...";
+                scanFeedback.textContent = "Scannen...";
                 scanFeedback.classList.remove("bg-green-600");
                 scanFeedback.classList.add("bg-black/60");
             }, 1000);
@@ -269,7 +271,7 @@
                 canvas.classList.remove("hidden");
                 scanFeedback.classList.remove("hidden");
                 scanOverlay.classList.remove("hidden");
-                scanFeedback.textContent = "Kamera gestartet. Scanne...";
+                scanFeedback.textContent = "Kamera gestartet. Scannen...";
                 
                 requestAnimationFrame(tick);
 
@@ -343,7 +345,7 @@
                             pendingDigit = detectedDigit;
                             pendingDigitStartTime = now;
                             if (!scanFeedback.classList.contains("bg-green-600")) {
-                                scanFeedback.textContent = `Gefunden: ${detectedDigit} (Verifizieren...)`;
+                                scanFeedback.textContent = `Gefunden`;
                             }
                         } else {
                             // Same digit as pending
@@ -352,7 +354,7 @@
                             // Visual feedback
                             if (elapsed < CONFIRMATION_TIME_MS) {
                                 if (!scanFeedback.classList.contains("bg-green-600")) {
-                                    scanFeedback.textContent = `Gefunden: ${detectedDigit} (${(elapsed/1000).toFixed(1)}s)`;
+                                    scanFeedback.textContent = `Gefunden (${(elapsed/1000).toFixed(1)}s)`;
                                 }
                             } else {
                                 // Time met!
@@ -373,7 +375,7 @@
                         pendingDigit = null;
                         pendingDigitStartTime = 0;
                         if (!scanFeedback.classList.contains("bg-green-600")) {
-                            scanFeedback.textContent = "Scanne...";
+                            scanFeedback.textContent = "Scannen...";
                         }
                     }
                 }
