@@ -48,8 +48,8 @@ const createHtml = (qrCodes) => {
   </style>
 </head>
 <body>
-  <h1>QR Code Sheet</h1>
-  <p>Scan the QR codes to access the URL.</p>
+  <p>Das mittlere Feld hat die Lösung...</p>
+  <p>TODO: add Sudoku</p>
   <div class="grid-container">
     ${qrCodeImages}
   </div>

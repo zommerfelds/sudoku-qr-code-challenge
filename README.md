@@ -1,15 +1,17 @@
 # sudoku-qr-code-challenge
 A tiny Sudoku + QR code scanning puzzle you can print and give to a friend (in German).
 
+Note: a lot of the code is generated with Gemini.
+
 ## How to use the game
 
-TODO
+Print/open [this page](https://zommerfelds.github.io/sudoku-qr-code-challenge/sheet.html).
 
 ## Dev instructions
 
 To generate a new sheet:
 ```
-node generate-sheet.js https://fuzzy-space-sniffle-gxpg7gqvhvqjw-8000.app.github.dev/
+node generate-sheet.js https://zommerfelds.github.io/sudoku-qr-code-challenge
 ```
 
 Host everything on Github pages
