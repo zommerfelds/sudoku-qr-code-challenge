@@ -7,10 +7,38 @@ if (!url) {
   process.exit(1);
 }
 
+const sudokuPuzzle = [
+  ".8.....9.",
+  ".7..6.21.",
+  "..6.487..",
+  "8.....53.",
+  ".2.......",
+  "163......",
+  "...4.19..",
+  ".......7.",
+  "2.97....5"
+];
+
+const getSudokuPart = (index) => {
+  const rowOffset = Math.floor((index - 1) / 3) * 3;
+  const colOffset = ((index - 1) % 3) * 3;
+  let part = '';
+  for (let i = 0; i < 3; i++) {
+    part += sudokuPuzzle[rowOffset + i].slice(colOffset, colOffset + 3);
+  }
+  return part;
+};
+
 const generateQrCodes = async () => {
   const qrCodes = [];
   for (let i = 1; i <= 9; i++) {
-    const qrUrl = `${url}?n=${i}`;
+    let qrUrl;
+    if (i === 5) {
+      qrUrl = `${url}?n=${i}&fillerfill`;
+    } else {
+      const sudokuPart = getSudokuPart(i);
+      qrUrl = `${url}/part.html?n=${i}&s=${sudokuPart}`;
+    }
     const qrDataUrl = await QRCode.toDataURL(qrUrl, {
       errorCorrectionLevel: 'H',
       width: 512,
@@ -24,23 +52,12 @@ const generateQrCodes = async () => {
 const createHtml = (qrCodes) => {
   const qrCodeImages = qrCodes.map(qr => `<img src="${qr}" alt="QR Code">`).join('');
 
-  const sudokuPuzzle = [
-    ".8.....9.",
-    ".7..6.21.",
-    "..6.487..",
-    "8.....53.",
-    ".2.......",
-    "163......",
-    "...4.19..",
-    ".......7.",
-    "2.97....5"
-  ].map(row => row.replace(/ /g, ''));
-
   let sudokuTable = '<table class="sudoku-grid">';
   for (let i = 0; i < 9; i++) {
     sudokuTable += '<tr>';
     for (let j = 0; j < 9; j++) {
-      const char = sudokuPuzzle[i][j];
+      const char = '.';
+      // const char = sudokuPuzzle[i][j];
       let classes = [];
       if ((i + 1) % 3 === 0 && i < 8) {
         classes.push('row-separator');
@@ -81,7 +98,7 @@ const createHtml = (qrCodes) => {
     }
     .sudoku-grid {
       border-collapse: collapse;
-      margin-top: 80px;
+      margin-bottom: 80px;
       border: 3px solid black;
     }
     .sudoku-grid td {
@@ -100,11 +117,11 @@ const createHtml = (qrCodes) => {
   </style>
 </head>
 <body>
+  <p>Das mittlere Feld hat die Lösung...</p>
+  ${sudokuTable}
   <div class="qr-grid-container">
     ${qrCodeImages}
   </div>
-  ${sudokuTable}
-  <p>Das mittlere Feld hat die Lösung...</p>
 </body>
 </html>
   `;

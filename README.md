@@ -9,22 +9,12 @@ Print/open [this page](https://zommerfelds.github.io/sudoku-qr-code-challenge/sh
 
 ## Dev instructions
 
+This can be run in Github Codespaces.
+
 To generate a new sheet:
 ```
 node generate-sheet.js https://zommerfelds.github.io/sudoku-qr-code-challenge
 ```
 
+Click "Go Live" in the vscode bottom bar to start Live Server.
 Host everything on Github pages
-
-Sudoku
-
-```
-58. 1.. ..7
-... 5.. .26
-... ..1 ..4
-1.. ... ...
-..4 2.. ...
-... ... 6.8
-7.1 ..3 ...
-..5 4.. 9..
-```
