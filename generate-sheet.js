@@ -90,7 +90,7 @@ const createHtml = (qrCodes) => {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-gap: 140px;
-      width: 1000px;
+      width: 950px;
     }
     img {
       width: 100%;
@@ -102,8 +102,8 @@ const createHtml = (qrCodes) => {
       border: 3px solid black;
     }
     .sudoku-grid td {
-      width: 70px;
-      height: 70px;
+      width: 75px;
+      height: 75px;
       border: 1px solid black;
       text-align: center;
       font-size: 30px;
