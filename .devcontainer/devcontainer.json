@@ -4,7 +4,7 @@
 	"name": "NodeJs",
 	"image": "mcr.microsoft.com/devcontainers/javascript-node:20",
 	"features": {
-		# Git LFS seems to be needed since it's set up by default
+		// Git LFS seems to be needed since it's set up by default
 		"ghcr.io/devcontainers/features/git-lfs:1": {}
 	},
 	"customizations": {
